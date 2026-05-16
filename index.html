@@ -220,6 +220,52 @@
             border-radius: 6px;
             border: 2px solid rgba(255, 182, 193, 0.5);
         }
+
+        #historico {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 182, 193, 0.05);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.9em;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .historico-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 0.9em;
+        }
+
+        .historico-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .btn-deletar {
+            padding: 5px 10px;
+            background: rgba(255, 20, 147, 0.3);
+            color: var(--cor-principal);
+            border: 1px solid var(--cor-principal);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-deletar:hover {
+            background: rgba(255, 20, 147, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -257,6 +303,8 @@
         </div>
 
         <div class="theme-toggle" onclick="alternarTema()">🌙 Alternar Tema</div>
+
+        <div id="historico"></div>
     </div>
 
     <script>
@@ -292,6 +340,53 @@
             }
 
             document.getElementById('resultado').innerText = `${emoji} IMC: ${imc} - ${classificacao}`;
+
+            // Salvar no localStorage
+            const resultado = {
+                peso,
+                altura: alturaCm,
+                imc,
+                classificacao,
+                data: new Date().toLocaleString('pt-BR')
+            };
+
+            let historico = JSON.parse(localStorage.getItem('historicoIMC')) || [];
+            historico.unshift(resultado);
+            if (historico.length > 10) historico.pop();
+            localStorage.setItem('historicoIMC', JSON.stringify(historico));
+
+            exibirHistorico();
+        }
+
+        function exibirHistorico() {
+            const historico = JSON.parse(localStorage.getItem('historicoIMC')) || [];
+            const historicoDiv = document.getElementById('historico');
+            
+            if (historico.length === 0) {
+                historicoDiv.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9em;">Nenhum resultado salvo</p>';
+                return;
+            }
+
+            historicoDiv.innerHTML = '<strong>Últimos Resultados:</strong>';
+            historico.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'historico-item';
+                itemDiv.innerHTML = `
+                    <div class="historico-content">
+                        <span>${index + 1}. IMC: ${item.imc} (${item.classificacao})</span>
+                        <span style="font-size: 0.8em; color: rgba(255, 255, 255, 0.6);">${item.data}</span>
+                    </div>
+                    <button class="btn-deletar" onclick="deletarResultado(${index})">✕</button>
+                `;
+                historicoDiv.appendChild(itemDiv);
+            });
+        }
+
+        function deletarResultado(index) {
+            let historico = JSON.parse(localStorage.getItem('historicoIMC')) || [];
+            historico.splice(index, 1);
+            localStorage.setItem('historicoIMC', JSON.stringify(historico));
+            exibirHistorico();
         }
 
         function alternarTema() {
@@ -309,6 +404,11 @@
                 document.documentElement.style.setProperty('--glass-border-escuro', '#d1446a');
             }
         }
+
+        // Inicializar histórico ao carregar página
+        window.addEventListener('load', () => {
+            exibirHistorico();
+        });
 
         document.getElementById('peso').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') calcularIMC();
