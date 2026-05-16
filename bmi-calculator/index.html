@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de IMC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cor-fundo-claro: #ffffff;
+            --cor-fundo-escuro: #0f0f1e;
+            --cor-texto-claro: #333;
+            --cor-texto-escuro: #ffffff;
+            --cor-principal: #ff69b4;
+            --cor-principal-hover: #ff1493;
+            --glass-bg-escuro: rgba(255, 20, 147, 0.15);
+            --glass-border-escuro: #ffb6c1;
+            --glass-bg-claro: rgba(255, 182, 193, 0.7);
+            --glass-border-claro: #ff1493;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--cor-fundo-escuro);
+            color: var(--cor-texto-escuro);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--cor-principal);
+            opacity: 0.15;
+            filter: blur(80px);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .circle.one {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .circle.two {
+            width: 300px;
+            height: 300px;
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(20px); }
+        }
+
+        .container {
+            background: var(--glass-bg-escuro);
+            border: 3px solid var(--glass-border-escuro);
+            backdrop-filter: blur(20px);
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--cor-principal);
+            text-shadow: 0 2px 10px rgba(255, 105, 180, 0.2);
+        }
+
+        .description {
+            font-size: 0.95em;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="number"] {
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ffb6c1;
+            border-radius: 10px;
+            width: 100%;
+            font-size: 1em;
+            font-family: 'Montserrat', sans-serif;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--cor-texto-escuro);
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--cor-principal);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--cor-principal), var(--cor-principal-hover));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 105, 180, 0.1);
+            border: 2px solid var(--glass-border-escuro);
+            border-radius: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--cor-principal);
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle {
+            margin-top: 25px;
+            font-size: 0.9em;
+            cursor: pointer;
+            color: var(--cor-principal);
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 105, 180, 0.1);
+        }
+
+        .info-box {
+            background: rgba(255, 182, 193, 0.05);
+            border-left: 6px solid var(--cor-principal);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            text-align: left;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .imc-scale {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 15px;
+            font-size: 0.8em;
+        }
+
+        .scale-item {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border: 2px solid rgba(255, 182, 193, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="circle one"></div>
+        <div class="circle two"></div>
+    </div>
+
+    <div class="container">
+        <h1>💗 IMC</h1>
+        
+        <div class="description">
+            <p>O Índice de Massa Corporal (IMC) é uma medida internacional usada para avaliar se você está em uma faixa de peso saudável. É calculado dividindo seu peso (kg) pela sua altura ao quadrado (m²).</p>
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="peso" placeholder="Seu peso (kg)" />
+            <input type="number" id="altura" placeholder="Sua altura (cm)" />
+        </div>
+
+        <div class="button-group">
+            <button onclick="calcularIMC()">Calcular</button>
+        </div>
+
+        <div class="result" id="resultado">Preencha os campos acima</div>
+
+        <div class="info-box">
+            <strong>Classificação IMC:</strong>
+            <div class="imc-scale">
+                <div class="scale-item">< 18,5: Abaixo</div>
+                <div class="scale-item">18,5-24,9: Normal</div>
+                <div class="scale-item">25-29,9: Sobrepeso</div>
+                <div class="scale-item">> 30: Obesidade</div>
+            </div>
+        </div>
+
+        <div class="theme-toggle" onclick="alternarTema()">🌙 Alternar Tema</div>
+    </div>
+
+    <script>
+        let temaEscuro = true;
+
+        function calcularIMC() {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const alturaCm = parseFloat(document.getElementById('altura').value);
+
+            if (isNaN(peso) || isNaN(alturaCm) || peso <= 0 || alturaCm <= 0) {
+                document.getElementById('resultado').innerText = "⚠️ Valores inválidos";
+                return;
+            }
+
+            const alturaM = alturaCm / 100;
+            const imc = (peso / (alturaM * alturaM)).toFixed(2);
+
+            let classificacao = '';
+            let emoji = '';
+            
+            if (imc < 18.5) {
+                classificacao = 'Abaixo do peso';
+                emoji = '📉';
+            } else if (imc < 24.9) {
+                classificacao = 'Peso normal';
+                emoji = '✅';
+            } else if (imc < 29.9) {
+                classificacao = 'Sobrepeso';
+                emoji = '⚠️';
+            } else {
+                classificacao = 'Obesidade';
+                emoji = '🔴';
+            }
+
+            document.getElementById('resultado').innerText = `${emoji} IMC: ${imc} - ${classificacao}`;
+        }
+
+        function alternarTema() {
+            temaEscuro = !temaEscuro;
+
+            if (temaEscuro) {
+                document.documentElement.style.setProperty('--cor-fundo-escuro', '#0f0f1e');
+                document.documentElement.style.setProperty('--cor-texto-escuro', '#ffffff');
+                document.documentElement.style.setProperty('--glass-bg-escuro', 'rgba(255, 20, 147, 0.15)');
+                document.documentElement.style.setProperty('--glass-border-escuro', '#ffb6c1');
+            } else {
+                document.documentElement.style.setProperty('--cor-fundo-escuro', '#f5f5f5');
+                document.documentElement.style.setProperty('--cor-texto-escuro', '#1a1a1a');
+                document.documentElement.style.setProperty('--glass-bg-escuro', 'rgba(255, 182, 193, 0.85)');
+                document.documentElement.style.setProperty('--glass-border-escuro', '#d1446a');
+            }
+        }
+
+        document.getElementById('peso').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calcularIMC();
+        });
+        
+        document.getElementById('altura').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calcularIMC();
+        });
+    </script>
+</body>
+</html>
